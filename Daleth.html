@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Te Amo Daaaaa :3</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+:root {
+  --bg:#bd95e5;
+  --petal:#ffffff;
+  --petal-shadow:rgba(0,0,0,0.06);
+  --center:#ffd84d;
+  --center-shadow:rgba(0,0,0,0.15);
+  --text:#e90000;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html,body { width:100%; height:100%; overflow:hidden; font-family: 'Trebuchet MS', system-ui, sans-serif; }
+body {
+  background: radial-gradient(circle at 50% 40%, #f7edff 0%, var(--bg) 70%) fixed;
+  position:relative;
+  user-select:none;
+  -webkit-font-smoothing:antialiased;
+}
+
+h1 {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size: clamp(2.5rem, 12vw, 8rem);
+  color:var(--text);
+  text-align:center;
+  text-shadow:0 0 6px rgba(255,255,255,0.9), 0 0 18px rgba(122,59,170,0.35);
+  animation:pulse 2.4s ease-in-out infinite;
+  font-weight:700;
+  letter-spacing:.05em;
+}
+
+@keyframes pulse {
+  0%,100% { transform:translate(-50%,-50%) scale(0.85); }
+  50% { transform:translate(-50%,-50%) scale(1.05); }
+}
+
+.daisy {
+  position:absolute;
+  width:var(--size);
+  height:var(--size);
+  pointer-events:none;
+  animation: float var(--floatDur) linear infinite, sway calc(var(--floatDur)*0.6) ease-in-out infinite;
+  will-change: transform;
+  opacity:0;
+  animation-delay: var(--delay);
+}
+
+@keyframes float {
+  0% { transform:translateY(0) rotate(0deg); opacity:0; }
+  5% { opacity:1; }
+  95% { opacity:1; }
+  100% { transform:translateY(-120vh) rotate(var(--rot)); opacity:0; }
+}
+
+@keyframes sway {
+  0%,100% { margin-left: -8px; }
+  50% { margin-left: 8px; }
+}
+
+.daisy svg {
+  width:100%;
+  height:100%;
+  overflow:visible;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.15));
+}
+
+.glow {
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 30% 70%, rgba(255,255,255,0.45), transparent 60%),
+    radial-gradient(circle at 70% 30%, rgba(255,255,255,0.4), transparent 65%),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.35), transparent 70%);
+  mix-blend-mode:overlay;
+  opacity:.4;
+  pointer-events:none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .daisy, h1 { animation:none !important; }
+}
+</style>
+</head>
+<body>
+  <h1>Te Amo!!!<br>Daaaaa :3</h1>
+  <div class="glow"></div>
+
+<script>
+const TOTAL = 70;            
+const MIN_SIZE = 40;        
+const MAX_SIZE = 140;        
+const MIN_DUR = 18;          
+const MAX_DUR = 42;    
+
+function createDaisy() {
+  const div = document.createElement('div');
+  div.className = 'daisy';
+  const size = rand(MIN_SIZE, MAX_SIZE);
+  const floatDur = rand(MIN_DUR, MAX_DUR);
+  const startX = rand(0, 100);
+  const delay = -rand(0, floatDur);
+  const rot = rand(-540, 540) + 'deg';
+  div.style.setProperty('--size', size + 'px');
+  div.style.setProperty('--floatDur', floatDur + 's');
+  div.style.setProperty('--delay', delay + 's');
+  div.style.setProperty('--rot', rot);
+  div.style.left = startX + 'vw';
+  div.style.bottom = '-'+ rand(0, 60) + 'vh';
+
+  const petalTint = rand(240, 255);
+  const centerTint = rand(225, 255);
+
+  div.innerHTML = `
+    <svg viewBox="-50 -50 100 100" aria-hidden="true">
+      <g transform="rotate(${rand(0,360)})">
+        ${Array.from({length:16}).map((_,i)=>{
+          const angle = (360/16)*i;
+          const petalLen = rand(30,38);
+          const petalWidth = rand(12,16);
+          return `<ellipse cx="0" cy="-${petalLen/2}" rx="${petalWidth/2}" ry="${petalLen/1.4}" fill="rgba(${petalTint},${petalTint},${petalTint},0.98)" stroke="rgba(0,0,0,0.04)" stroke-width="1" transform="rotate(${angle})" />`
+        }).join('')}
+        <circle r="18" fill="rgb(255,${centerTint},80)" stroke="var(--center-shadow)" stroke-width="3"></circle>
+        <circle r="10" fill="rgba(255,255,255,0.25)"></circle>
+      </g>
+    </svg>
+  `;
+  return div;
+}
+
+function rand(a,b){ return Math.random()*(b-a)+a; }
+
+for(let i=0;i<TOTAL;i++){
+  document.body.appendChild(createDaisy());
+}
+
+let resizeTimer;
+window.addEventListener('resize', ()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(()=>{
+    document.querySelectorAll('.daisy').forEach(d=>{
+      d.style.left = rand(0,100)+'vw';
+    });
+  }, 400);
+});
+</script>
+</body>
+</html>
