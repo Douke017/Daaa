@@ -36,6 +36,37 @@ h1 {
   letter-spacing:.05em;
 }
 
+/* Botón de música */
+.music-btn {
+  position:fixed;
+  right:1rem;
+  bottom:1rem;
+  background:rgba(255,255,255,0.75);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  border:2px solid rgba(255,255,255,0.9);
+  color:#6d279e;
+  font-weight:600;
+  font-size:.9rem;
+  padding:.65rem 1rem;
+  border-radius:999px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  box-shadow:0 4px 14px -4px rgba(0,0,0,0.25);
+  transition:background .35s, transform .25s;
+  z-index:50;
+}
+.music-btn:hover { background:rgba(255,255,255,0.95); }
+.music-btn:active { transform:scale(.93); }
+.music-btn .icon { font-size:1.1rem; line-height:1; }
+
+.music-btn.playing { color:#d22b6c; }
+.music-btn.playing .icon { animation: spin 4s linear infinite; }
+
+@keyframes spin { to { transform:rotate(360deg); } }
+
 @keyframes pulse {
   0%,100% { transform:translate(-50%,-50%) scale(0.85); }
   50% { transform:translate(-50%,-50%) scale(1.05); }
@@ -91,6 +122,13 @@ h1 {
 <body>
   <h1>Te Amo!!!<br>Daaaaa :3</h1>
   <div class="glow"></div>
+  <audio id="bgm" loop preload="auto">
+    <source src="QMFT.mp3" type="audio/mpeg" />
+  </audio>
+  <button id="musicToggle" class="music-btn" aria-pressed="false" aria-label="Activar música">
+    <span class="icon">🎵</span>
+    <span class="label">Sonido</span>
+  </button>
 
 <script>
 const TOTAL = 70;            
@@ -149,6 +187,58 @@ window.addEventListener('resize', ()=>{
     });
   }, 400);
 });
+
+const audio = document.getElementById('bgm');
+const btn = document.getElementById('musicToggle');
+let userInteracted = false;
+
+function updateBtn(){
+  const playing = !audio.paused;
+  btn.classList.toggle('playing', playing);
+  btn.setAttribute('aria-pressed', playing ? 'true':'false');
+  btn.querySelector('.label').textContent = playing ? 'Pausar' : 'Sonido';
+  btn.querySelector('.icon').textContent = playing ? '💖' : '🎵';
+}
+
+async function toggleAudio(){
+  try {
+    if(audio.paused){
+      await audio.play();
+    } else {
+      audio.pause();
+    }
+  } catch(e){
+    console.warn('No se pudo reproducir todavía:', e);
+  }
+  updateBtn();
+}
+
+btn.addEventListener('click', ()=>{
+  userInteracted = true;
+  toggleAudio();
+});
+
+
+['pointerdown','keydown'].forEach(ev=>{
+  window.addEventListener(ev, attemptAutoplayOnce, { once:true });
+});
+
+function attemptAutoplayOnce(){
+  if(userInteracted) return;
+  audio.volume = 0;
+  audio.play().then(()=>{
+    let vol = 0;
+    const step = ()=>{
+      vol += 0.02;
+      audio.volume = Math.min(vol, 1);
+      if(vol < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+    updateBtn();
+  }).catch(()=>{/* ignorar */});
+}
+
+updateBtn();
 </script>
 </body>
 </html>
