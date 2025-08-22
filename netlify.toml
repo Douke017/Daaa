@@ -1,0 +1,7 @@
+[build]
+  publish = "src"
+
+[[redirects]]
+  from = "/"
+  to = "/Daleth.html"
+  status = 200
